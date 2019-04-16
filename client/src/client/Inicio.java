@@ -5,9 +5,17 @@
  */
 package client;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -19,6 +27,9 @@ import javax.swing.JOptionPane;
 public class Inicio extends javax.swing.JFrame {
 
     private Servidor servidor;
+    private Socket socket;
+    private ObjectOutputStream enviar;
+    private BufferedReader receber;
     
     /**
      * Creates new form Inicio
@@ -26,6 +37,14 @@ public class Inicio extends javax.swing.JFrame {
     public Inicio() {
         initComponents();
         this.setTitle("Bem vindo ao chat");
+        
+        try {
+            socket = new Socket("localhost", 8084);
+            enviar = new ObjectOutputStream(socket.getOutputStream());
+            receber = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException ex) {
+            
+        }
         
         
         this.servidor = new Servidor();
@@ -181,11 +200,22 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTodosActionPerformed
-        // TODO add your handling code here:
+        try {
+            this.txtMensagens.setText(this.txtEnviarMensagem.getText() + '\n' + receber.readLine());
+        } catch (IOException ex) {
+            
+        }
     }//GEN-LAST:event_btnTodosActionPerformed
 
     private void btnEnviarMensagemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarMensagemActionPerformed
-        // TODO add your handling code here:
+        
+        try {
+            enviar.writeObject(this.txtEnviarMensagem.getText());
+            enviar.flush();
+        } catch (IOException ex) {
+            
+        }
+        
     }//GEN-LAST:event_btnEnviarMensagemActionPerformed
 
     private void btnEnviarArquivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarArquivoActionPerformed
