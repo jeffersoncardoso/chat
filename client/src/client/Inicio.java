@@ -29,7 +29,7 @@ public class Inicio extends javax.swing.JFrame {
     private Servidor servidor;
     private Socket socket;
     private ObjectOutputStream enviar;
-    private BufferedReader receber;
+    private ObjectInputStream receber;
     
     /**
      * Creates new form Inicio
@@ -41,15 +41,14 @@ public class Inicio extends javax.swing.JFrame {
         try {
             socket = new Socket("localhost", 8084);
             enviar = new ObjectOutputStream(socket.getOutputStream());
-            receber = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            receber = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
-            
-        }
+            ex.printStackTrace();
+        }        
         
+//        this.servidor = new Servidor();
         
-        this.servidor = new Servidor();
-        
-        this.atualizarListaChat();
+        //this.atualizarListaChat();
         
     }
     
@@ -201,9 +200,10 @@ public class Inicio extends javax.swing.JFrame {
 
     private void btnTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTodosActionPerformed
         try {
-            this.txtMensagens.setText(this.txtEnviarMensagem.getText() + '\n' + receber.readLine());
+            enviar.writeObject("jefferson");
+            //this.txtMensagens.setText(this.txtEnviarMensagem.getText() + '\n' + receber.readLine());
         } catch (IOException ex) {
-            
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_btnTodosActionPerformed
 
@@ -213,7 +213,7 @@ public class Inicio extends javax.swing.JFrame {
             enviar.writeObject(this.txtEnviarMensagem.getText());
             enviar.flush();
         } catch (IOException ex) {
-            
+            ex.printStackTrace();
         }
         
     }//GEN-LAST:event_btnEnviarMensagemActionPerformed
