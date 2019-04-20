@@ -1,5 +1,6 @@
 package Servidor;
 
+import Util.Saida;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,16 +22,26 @@ public class Conexao extends Thread{
             this.enviar.writeObject(object);
             this.enviar.flush();
         } catch (IOException ex) {
-            System.out.println("Ocorreu um erro");
+            Saida.escrever("Ocorreu um erro: " + ex.getMessage());
         }
     }
     
-    public Object receber() {
+    public Object receber() throws IOException{
         try {
             Object object = (Object)this.receber.readObject();
             return object;
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
             throw new RuntimeException("Erro fatal");
+        }
+    }
+    
+    public void encerrar(){
+        try {
+            this.receber.close();
+            this.enviar.close();
+            this.socket.close();
+        } catch (IOException ex) {
+            Saida.escrever("Ocorreu um erro: " + ex.getMessage());
         }
     }
 }

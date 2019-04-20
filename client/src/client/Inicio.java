@@ -1,29 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package client;
 
-import java.io.BufferedReader;
+import Eventos.MensagemArquivo;
+import java.awt.Desktop;
+import java.io.File;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileSystemView;
 
-/**
- *
- * @author 0190690
- */
 public class Inicio extends javax.swing.JFrame {
 
     private Servidor servidor;
@@ -31,35 +22,59 @@ public class Inicio extends javax.swing.JFrame {
     private ObjectOutputStream enviar;
     private ObjectInputStream receber;
     
-    /**
-     * Creates new form Inicio
-     */
     public Inicio() {
+
+        fazerConexao();
+        fazerLogin();
+        
         initComponents();
         this.setTitle("Bem vindo ao chat");
         
-        try {
-            socket = new Socket("localhost", 8084);
-            enviar = new ObjectOutputStream(socket.getOutputStream());
-            receber = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }        
+        Saida.setSaida(txtMensagens);
         
-//        this.servidor = new Servidor();
+        servidor.setListaChat(listaChat);
+        servidor.start();
+        servidor.setPagina(this);
         
-        //this.atualizarListaChat();
-        
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - getHeight()) / 2);
+        setLocation(x, y);
     }
     
-    
-    private void atualizarListaChat() {
-        DefaultListModel model = new DefaultListModel();
-        ArrayList<Cliente> clientes = this.servidor.buscarClientesConectados();
-        for (Cliente cliente : clientes) {
-            model.addElement(cliente.toString());
+    public void fazerConexao() {
+        try {
+            servidor = new Servidor();
+        } catch (IOException ex) {
+            int opcao = JOptionPane.showConfirmDialog(null, "Ocorreu um erro na conexão com o servidor, deseja tentar novamente?");
+            
+            if(opcao == 0) {
+                this.fazerConexao();
+            }else {
+                throw new RuntimeException("Não foi possível iniciar o chat");
+            }
         }
-        this.listaChat.setModel(model);
+    }
+    
+    public void abrirArquivoRecebido(String origem, File arquivo) {
+        int opcao = JOptionPane.showConfirmDialog(null, "Arquivo recebido de " + origem + ", deseja abrir?");
+            
+        if(opcao == 0) {
+            Desktop dt = Desktop.getDesktop();
+            try {
+                dt.open(arquivo);
+            } catch (IOException ex) {
+                ex.getStackTrace();
+            }
+        }
+    }
+    
+    public void fazerLogin() {
+        try {
+            servidor.fazerLogin(JOptionPane.showInputDialog("Digite seu usuário: "));
+        } catch (IOException ex) {
+            throw new RuntimeException("Não foi possível iniciar o chat");
+        }
     }
 
     /**
@@ -73,14 +88,14 @@ public class Inicio extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         txtEnviarMensagem = new javax.swing.JTextArea();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        txtMensagens = new javax.swing.JTextPane();
         jScrollPane3 = new javax.swing.JScrollPane();
-        listaChat = new javax.swing.JList<>();
+        listaChat = new javax.swing.JList<String>();
         btnTodos = new javax.swing.JButton();
         btnEnviarMensagem = new javax.swing.JButton();
         btnEnviarArquivo = new javax.swing.JButton();
         labelUsuario = new java.awt.Label();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtMensagens = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setName("janelaPrincipal"); // NOI18N
@@ -90,14 +105,7 @@ public class Inicio extends javax.swing.JFrame {
         txtEnviarMensagem.setRows(5);
         jScrollPane1.setViewportView(txtEnviarMensagem);
 
-        jScrollPane2.setViewportView(txtMensagens);
-
         listaChat.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        listaChat.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Ana", "João", "Pedro", "Maria", "José", "Luiz" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         listaChat.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 listaChatMouseClicked(evt);
@@ -147,6 +155,9 @@ public class Inicio extends javax.swing.JFrame {
         labelUsuario.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         labelUsuario.setText("Todos");
 
+        txtMensagens.setContentType("text/html"); // NOI18N
+        jScrollPane2.setViewportView(txtMensagens);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -155,71 +166,82 @@ public class Inicio extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane3)
-                            .addComponent(btnTodos, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane2))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(labelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(224, 224, 224))))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 761, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnEnviarMensagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnEnviarArquivo, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))))
+                            .addComponent(btnEnviarArquivo, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+                            .addComponent(btnEnviarMensagem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane3)
+                            .addComponent(btnTodos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(labelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(224, 224, 224))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane2)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(21, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnTodos, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2))
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnEnviarArquivo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnEnviarMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16))
+                        .addComponent(btnEnviarArquivo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEnviarMensagem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTodosActionPerformed
-        try {
-            enviar.writeObject("jefferson");
-            //this.txtMensagens.setText(this.txtEnviarMensagem.getText() + '\n' + receber.readLine());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        this.listaChat.clearSelection();
     }//GEN-LAST:event_btnTodosActionPerformed
 
     private void btnEnviarMensagemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarMensagemActionPerformed
         
+        if(this.txtEnviarMensagem.getText().trim().isEmpty()){
+            JOptionPane.showMessageDialog(null, "Preencha o texto da mensagem para enviar");
+            return;
+        }
+        
         try {
-            enviar.writeObject(this.txtEnviarMensagem.getText());
-            enviar.flush();
+            this.servidor.enviarMensagem(this.txtEnviarMensagem.getText(), this.listaChat.getSelectedValue());
+            this.txtEnviarMensagem.setText("");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Ocorreu um erro ao enviar a mensagem, tente novamente.");
         }
         
     }//GEN-LAST:event_btnEnviarMensagemActionPerformed
 
     private void btnEnviarArquivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarArquivoActionPerformed
-        // TODO add your handling code here:
+        JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getFileSystemView().getHomeDirectory());
+        int returnValue = jfc.showOpenDialog(null);
+        
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File arquivo = jfc.getSelectedFile();
+            try {
+                String textoMensagem = JOptionPane.showInputDialog("Arquivo '" + arquivo.getName() + "' selecionado, digite a mensagem: ");
+                servidor.enviarMensagem(textoMensagem, this.listaChat.getSelectedValue(), arquivo);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Ocorreu um erro ao enviar a mensagem, tente novamente.");
+            }
+        }
     }//GEN-LAST:event_btnEnviarArquivoActionPerformed
 
     private void listaChatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listaChatMouseClicked
@@ -238,8 +260,7 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_listaChatValueChanged
 
     private void btnEnviarMensagemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEnviarMensagemMouseClicked
-        this.servidor.enviarMensagem(this.txtEnviarMensagem.getText(), this.listaChat.getSelectedValue());
-        this.txtEnviarMensagem.setText("");
+        
     }//GEN-LAST:event_btnEnviarMensagemMouseClicked
 
     /**
@@ -287,6 +308,6 @@ public class Inicio extends javax.swing.JFrame {
     private java.awt.Label labelUsuario;
     private javax.swing.JList<String> listaChat;
     private javax.swing.JTextArea txtEnviarMensagem;
-    private javax.swing.JTextPane txtMensagens;
+    private javax.swing.JEditorPane txtMensagens;
     // End of variables declaration//GEN-END:variables
 }

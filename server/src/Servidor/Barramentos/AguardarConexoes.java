@@ -4,6 +4,8 @@ import Cliente.Usuario;
 import Servidor.Servidor;
 import Servidor.Conexao;
 import java.io.IOException;
+import Eventos.Login;
+import Util.Saida;
 
 public class AguardarConexoes extends Thread{
     
@@ -18,11 +20,12 @@ public class AguardarConexoes extends Thread{
         while(this.servidor.estaLigado()){
             try {
                 Conexao conexao = new Conexao(this.servidor.esperarCliente());
-                Usuario novoUsuario = new Usuario((String)conexao.receber(), conexao, this.servidor);
+                Login login = (Login)conexao.receber();
+                Usuario novoUsuario = new Usuario(login.getUsuario(), conexao, this.servidor);
                 this.servidor.adicionar(novoUsuario);
                 novoUsuario.start();
             } catch (IOException ex) {
-                System.out.println(ex.getMessage());
+                Saida.escrever(ex.getMessage());
             }
         }
     }

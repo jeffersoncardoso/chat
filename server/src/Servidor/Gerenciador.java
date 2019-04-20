@@ -5,8 +5,9 @@
  */
 package Servidor;
 
-import Util.LogSaida;
-import java.io.PrintStream;
+import Util.Saida;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 /**
  *
@@ -15,15 +16,21 @@ import java.io.PrintStream;
 public class Gerenciador extends javax.swing.JFrame {
 
     private Servidor servidor;
+    
     /**
      * Creates new form Gerenciador
      */
     public Gerenciador() {
         initComponents();
         
-        PrintStream saida = new PrintStream(new LogSaida(this.txtLog));
-        System.setOut(saida);
-        System.setErr(saida);
+        Saida.setSaida(this.txtLog);
+        
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - getHeight()) / 2);
+        setLocation(x, y);
+        
+        setTitle("Chat");
     }
 
     /**
@@ -35,17 +42,21 @@ public class Gerenciador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnIniciarServidor = new javax.swing.JButton();
+        btnIniciarPararServidor = new javax.swing.JButton();
         txtPorta = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtLog = new javax.swing.JTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        listaUsuariosConectados = new javax.swing.JList();
+        lblTotalUsuarios = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
-        btnIniciarServidor.setText("Iniciar Servidor");
-        btnIniciarServidor.addActionListener(new java.awt.event.ActionListener() {
+        btnIniciarPararServidor.setText("Iniciar Servidor");
+        btnIniciarPararServidor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnIniciarServidorActionPerformed(evt);
+                btnIniciarPararServidorActionPerformed(evt);
             }
         });
 
@@ -61,6 +72,14 @@ public class Gerenciador extends javax.swing.JFrame {
         txtLog.setRows(5);
         jScrollPane1.setViewportView(txtLog);
 
+        listaUsuariosConectados.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        listaUsuariosConectados.setEnabled(false);
+        listaUsuariosConectados.setMaximumSize(new java.awt.Dimension(50, 50));
+        jScrollPane2.setViewportView(listaUsuariosConectados);
+
+        lblTotalUsuarios.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        lblTotalUsuarios.setText("Nenhum usuário conectado");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -68,37 +87,50 @@ public class Gerenciador extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtPorta)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
-                    .addComponent(btnIniciarServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnIniciarPararServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTotalUsuarios)
+                                .addGap(0, 11, Short.MAX_VALUE))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                    .addComponent(txtPorta, javax.swing.GroupLayout.Alignment.LEADING))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTotalUsuarios)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(txtPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnIniciarServidor, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnIniciarPararServidor, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        btnIniciarServidor.getAccessibleContext().setAccessibleName("btnIniciarServidor");
+        btnIniciarPararServidor.getAccessibleContext().setAccessibleName("btnIniciarPararServidor");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnIniciarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarServidorActionPerformed
+    private void btnIniciarPararServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarPararServidorActionPerformed
         if(servidor == null){
             servidor = new Servidor(Integer.parseInt(this.txtPorta.getText()));
+            servidor.setDashboard(new Dashboard(this.lblTotalUsuarios, this.listaUsuariosConectados));
             servidor.iniciarBarramentos();
             
-            this.btnIniciarServidor.setEnabled(false);
-            this.btnIniciarServidor.setText("Servidor iniciado");
+            btnIniciarPararServidor.setEnabled(false);
+            btnIniciarPararServidor.setText("Servidor iniciado");
         }
-    }//GEN-LAST:event_btnIniciarServidorActionPerformed
+    }//GEN-LAST:event_btnIniciarPararServidorActionPerformed
 
     private void txtPortaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPortaActionPerformed
         // TODO add your handling code here:
@@ -140,8 +172,11 @@ public class Gerenciador extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnIniciarServidor;
+    private javax.swing.JButton btnIniciarPararServidor;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblTotalUsuarios;
+    private javax.swing.JList listaUsuariosConectados;
     private javax.swing.JTextArea txtLog;
     private javax.swing.JTextField txtPorta;
     // End of variables declaration//GEN-END:variables
