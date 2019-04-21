@@ -23,4 +23,9 @@ public class MensagemPublica implements Mensagem{
     public String getDescricao() {
         return origem + " > Todos : " + this.mensagem;
     }
+    
+    @Override
+    public String getTexto() {
+        return this.mensagem;
+    }
 }

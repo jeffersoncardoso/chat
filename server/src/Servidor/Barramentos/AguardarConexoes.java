@@ -1,6 +1,7 @@
 package Servidor.Barramentos;
 
 import Cliente.Usuario;
+import Eventos.FalhaLogin;
 import Servidor.Servidor;
 import Servidor.Conexao;
 import java.io.IOException;
@@ -15,15 +16,33 @@ public class AguardarConexoes extends Thread{
         this.servidor = servidor;
     }
     
+    private boolean fazerLogin(Login login, Conexao conexao) throws IOException {
+        if(servidor.possuiUsuario(login.getUsuario())) {
+            Saida.escrever("Já existe um usuário com o login %s", login.getUsuario());
+            conexao.enviar(new FalhaLogin("Já existe um usuário com esse login"));
+            return false;
+        }
+        
+        conexao.enviar(login);
+        return true;
+    }
+    
     @Override
     public void run() {
         while(this.servidor.estaLigado()){
             try {
                 Conexao conexao = new Conexao(this.servidor.esperarCliente());
+                
                 Login login = (Login)conexao.receber();
-                Usuario novoUsuario = new Usuario(login.getUsuario(), conexao, this.servidor);
-                this.servidor.adicionar(novoUsuario);
-                novoUsuario.start();
+                
+                if(fazerLogin(login, conexao)){
+                    Usuario novoUsuario = new Usuario(login.getUsuario(), conexao, this.servidor);
+                    servidor.adicionar(novoUsuario);
+                    novoUsuario.start();
+                }else{
+                    conexao.encerrar();
+                }
+                
             } catch (IOException ex) {
                 Saida.escrever(ex.getMessage());
             }

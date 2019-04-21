@@ -1,5 +1,7 @@
 package client;
 
+import Erros.EventoException;
+import Erros.EventoInvalidoException;
 import Eventos.Evento;
 import Eventos.EventoFabrica;
 import Eventos.EventoTipo;
@@ -9,40 +11,49 @@ import Eventos.Mensagem;
 import Eventos.MensagemArquivo;
 import Eventos.MensagemPrivada;
 import Eventos.MensagemPublica;
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import javax.swing.JList;
 
-public class Servidor extends Thread{
+public class Cliente extends Thread{
     
     private String login;
-    private Socket socket;
-    private ObjectOutputStream enviar;
-    private ObjectInputStream receber;
+    private final Socket socket;
+    private final ObjectOutputStream enviar;
+    private final ObjectInputStream receber;
     private String[] usuarios;
     private JList<String> listaChat;
     private Inicio pagina;
 
-    public Servidor() throws IOException
+    public Cliente() throws IOException
     {
         socket = new Socket("localhost", 8084);
         enviar = new ObjectOutputStream(socket.getOutputStream());
         receber = new ObjectInputStream(socket.getInputStream());
     }
     
-    public void fazerLogin(String usuario) throws IOException
+    public boolean fazerLogin(String usuario) throws IOException, EventoException, EventoInvalidoException
     {
         login = usuario;
         enviar.writeObject(new Login(usuario));
+        
+        Evento evento;
+        try {
+            evento = (Evento)receber.readObject();
+            if(evento.getTipo() == EventoTipo.FALHA_LOGIN)
+                throw new EventoException(evento.getDescricao());
+            
+            return true;
+            
+        } catch (ClassNotFoundException ex) {
+            throw new EventoInvalidoException("Erro na comunicação com o servidor");
+        }
     }
     
     public String getUsuario()
@@ -67,6 +78,8 @@ public class Servidor extends Thread{
         
         enviar.writeObject(mensagem);
         enviar.flush();
+        
+        Saida.escrever(mensagem, false);
     }
     
     public void enviarMensagem(String texto, String destino) throws IOException 
@@ -80,17 +93,20 @@ public class Servidor extends Thread{
         
         enviar.writeObject(mensagem);
         enviar.flush();
+        
+        if(destino == null)
+            Saida.escrever((MensagemPublica)mensagem, false);
+        else
+            Saida.escrever((MensagemPrivada)mensagem, false);
     }
     
     public void receberMensagem(MensagemPrivada mensagem) {
-        Saida.escrever(mensagem.getDescricao());
-    }
-    
+        Saida.escrever(mensagem, true);
+    }    
     public void receberMensagem(MensagemPublica mensagem) {
-        Saida.escrever(mensagem.getDescricao());
-    }
-    
-    public void receberMensagem(MensagemArquivo mensagem) {
+        Saida.escrever(mensagem, true);
+    }   
+    public void receberMensagem(MensagemArquivo mensagem) throws EventoException{
         try {
             File temp = File.createTempFile(mensagem.getNomeArquivo(), "." + mensagem.getExtensao());
             temp.deleteOnExit();
@@ -99,11 +115,11 @@ public class Servidor extends Thread{
             stream.write(mensagem.getConteudo());
             stream.close();
             
-            Saida.escrever(mensagem.getDescricao());
+            Saida.escrever(mensagem, true);
             
             pagina.abrirArquivoRecebido(mensagem.getOrigem(), temp);
         } catch (IOException ex) {
-        
+            throw new EventoException("Erro ao receber a mensagem: " + ex.getMessage());
         }
     }
     
@@ -134,10 +150,11 @@ public class Servidor extends Thread{
                     receberMensagem((MensagemArquivo)evento);
                 }
                     
-            } catch (IOException ex) {
-                
-            } catch (ClassNotFoundException ex) {
-                
+            } catch (ClassNotFoundException | EventoException ex ) {
+                System.out.println(ex.getMessage());
+            } catch (IOException ex){
+                System.out.println(ex.getMessage());
+                throw new RuntimeException("O servidor caiu");
             }
         }
     }

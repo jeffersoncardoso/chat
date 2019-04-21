@@ -2,10 +2,10 @@ package Eventos;
 
 public class MensagemArquivo implements Mensagem{
 
-    private MensagemPrivada mensagem;
+    private final MensagemPrivada mensagem;
     private final String nome;
     private final String extensao;
-    private byte[] conteudo;
+    private final byte[] conteudo;
 
     public MensagemArquivo(MensagemPrivada mensagem, byte[] conteudo, String nome, String extensao) {
         this.mensagem   = mensagem;
@@ -43,6 +43,11 @@ public class MensagemArquivo implements Mensagem{
     @Override
     public String getDescricao() {
         return this.mensagem.getDescricao() + " - " + nome + "." + extensao + " Recebido";
+    }
+
+    @Override
+    public String getTexto() {
+        return this.mensagem.getTexto();
     }
     
 }

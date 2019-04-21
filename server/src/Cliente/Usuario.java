@@ -39,18 +39,15 @@ public class Usuario extends Thread{
                 if(evento.getTipo() == EventoTipo.MENSAGEM_PRIVADA)
                     this.servidor.enviarMensagem((MensagemPrivada)evento);
                 
-                if(evento.getTipo() == EventoTipo.MENSAGEM_PUBLICA) {
+                if(evento.getTipo() == EventoTipo.MENSAGEM_PUBLICA)
                     this.servidor.enviarMensagem((MensagemPublica)evento);
-                }
                 
-                if(evento.getTipo() == EventoTipo.MENSAGEM_ARQUIVO) {
+                if(evento.getTipo() == EventoTipo.MENSAGEM_ARQUIVO)
                     this.servidor.enviarMensagem((MensagemArquivo)evento);
-                }
                 
                 if(evento.getTipo() == EventoTipo.LOGOUT)
                     this.sair();
                 
-                Saida.escrever("%s", evento.getDescricao());
             } catch (IOException ex) {
                 this.sair();
                 this.servidor.removerUsuario(this);

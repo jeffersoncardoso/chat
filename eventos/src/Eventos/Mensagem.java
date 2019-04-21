@@ -2,5 +2,6 @@ package Eventos;
 
 public interface Mensagem extends Evento{
     
-    public abstract String getOrigem();
+    public String getOrigem();
+    public String getTexto();
 }

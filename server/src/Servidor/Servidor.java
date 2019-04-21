@@ -3,8 +3,6 @@ package Servidor;
 import Servidor.Barramentos.AguardarConexoes;
 import Servidor.Barramentos.UsuariosConectados;
 import Cliente.Usuario;
-import Eventos.EventoTipo;
-import Eventos.Mensagem;
 import Eventos.MensagemArquivo;
 import Eventos.MensagemPrivada;
 import Eventos.MensagemPublica;
@@ -69,6 +67,10 @@ public class Servidor {
     public boolean verificarUsuario(Usuario usuario) {
         return this.usuarios.containsKey(usuario.getLogin());
     }
+    
+    public boolean possuiUsuario(String login) {
+        return this.usuarios.containsKey(login);
+    }
 
     public void removerUsuario(Usuario usuario) {
         this.usuarios.remove(usuario.getLogin());
@@ -79,20 +81,25 @@ public class Servidor {
             if(!mensagem.getOrigem().equals(login))
                 this.usuarios.get(login).encaminhar(mensagem);
         }
+        
+        Saida.escrever("Mensagem enviada de %s para TODOS", mensagem.getOrigem());
     }
     
     public void enviarMensagem(MensagemPrivada mensagem) {
         if(this.usuarios.containsKey(mensagem.getDestino())) {
             Usuario usuario = this.usuarios.get(mensagem.getDestino());
             usuario.encaminhar(mensagem);
+            
+            Saida.escrever("Mensagem enviada de %s para %s", mensagem.getOrigem(), mensagem.getDestino());
         }
     }
     
     public void enviarMensagem(MensagemArquivo mensagem) {
         if(this.usuarios.containsKey(mensagem.getDestino())) {
-            Saida.escrever("Mandando arquivo");
             Usuario usuario = this.usuarios.get(mensagem.getDestino());
             usuario.encaminhar(mensagem);
+            
+            Saida.escrever("Arquivo enviado de %s para %s", mensagem.getOrigem(), mensagem.getDestino());
         }
     }
 }

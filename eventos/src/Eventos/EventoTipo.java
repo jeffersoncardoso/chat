@@ -6,5 +6,6 @@ public enum EventoTipo {
     MENSAGEM_PUBLICA,
     MENSAGEM_PRIVADA,
     MENSAGEM_ARQUIVO,
-    LISTA_USUARIOS
+    LISTA_USUARIOS, 
+    FALHA_LOGIN, 
 }

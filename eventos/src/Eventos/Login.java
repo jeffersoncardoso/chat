@@ -5,7 +5,7 @@ public class Login implements Evento{
     private String usuario;
 
     public Login(String usuario) {
-        this.usuario = usuario;
+        this.usuario = usuario.trim();
     }
     
     public String getUsuario() {

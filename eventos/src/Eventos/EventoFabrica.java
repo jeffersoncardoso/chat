@@ -8,6 +8,9 @@ public class EventoFabrica {
         if(evento.getTipo().equals(EventoTipo.MENSAGEM_PRIVADA))
             return (MensagemPrivada)objeto;
         
+        if(evento.getTipo().equals(EventoTipo.MENSAGEM_ARQUIVO))
+            return (MensagemArquivo)objeto;
+        
         if(evento.getTipo().equals(EventoTipo.MENSAGEM_PUBLICA))
             return (MensagemPublica)objeto;
         
@@ -17,6 +20,9 @@ public class EventoFabrica {
         if(evento.getTipo().equals(EventoTipo.LOGOUT))
             return (Logout)objeto;
         
-        return evento;
+        if(evento.getTipo().equals(EventoTipo.LISTA_USUARIOS))
+            return (ListaUsuarios)objeto;
+        
+        throw new RuntimeException("Erro na mensagem do servidor");
     }
 }

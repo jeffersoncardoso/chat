@@ -1,8 +1,7 @@
 package Util;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JTextArea;
 
 
@@ -14,7 +13,10 @@ public class Saida {
     }
     
     public static void escrever(String texto) {
-        Saida.textArea.append(String.format("%s \n", texto));
+        Date dataHoraAtual = new Date();
+        String hora = new SimpleDateFormat("HH:mm:ss").format(dataHoraAtual);
+        
+        Saida.textArea.append(String.format("[%s] - %s \n", hora, texto));
         Saida.textArea.setCaretPosition(Saida.textArea.getDocument().getLength());
     }
     

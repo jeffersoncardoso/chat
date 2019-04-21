@@ -31,4 +31,8 @@ public class MensagemPrivada implements Mensagem{
         return origem + " > " + destino + " : " + this.mensagem;
     }
     
+    public String getTexto() {
+        return this.mensagem;
+    }
+    
 }

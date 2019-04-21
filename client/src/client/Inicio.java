@@ -1,6 +1,7 @@
 package client;
 
-import Eventos.MensagemArquivo;
+import Erros.EventoException;
+import Erros.EventoInvalidoException;
 import java.awt.Desktop;
 import java.io.File;
 import java.awt.Dimension;
@@ -17,7 +18,7 @@ import javax.swing.filechooser.FileSystemView;
 
 public class Inicio extends javax.swing.JFrame {
 
-    private Servidor servidor;
+    private Cliente servidor;
     private Socket socket;
     private ObjectOutputStream enviar;
     private ObjectInputStream receber;
@@ -25,10 +26,9 @@ public class Inicio extends javax.swing.JFrame {
     public Inicio() {
 
         fazerConexao();
-        fazerLogin();
         
         initComponents();
-        this.setTitle("Bem vindo ao chat");
+        this.setTitle("Bem vindo ao chat - " + this.servidor.getUsuario());
         
         Saida.setSaida(txtMensagens);
         
@@ -44,7 +44,7 @@ public class Inicio extends javax.swing.JFrame {
     
     public void fazerConexao() {
         try {
-            servidor = new Servidor();
+            servidor = new Cliente();
         } catch (IOException ex) {
             int opcao = JOptionPane.showConfirmDialog(null, "Ocorreu um erro na conexão com o servidor, deseja tentar novamente?");
             
@@ -54,6 +54,9 @@ public class Inicio extends javax.swing.JFrame {
                 throw new RuntimeException("Não foi possível iniciar o chat");
             }
         }
+        
+        if(!fazerLogin())
+            fazerConexao();
     }
     
     public void abrirArquivoRecebido(String origem, File arquivo) {
@@ -69,11 +72,19 @@ public class Inicio extends javax.swing.JFrame {
         }
     }
     
-    public void fazerLogin() {
+    public boolean fazerLogin() {
         try {
             servidor.fazerLogin(JOptionPane.showInputDialog("Digite seu usuário: "));
+            
+            return true;
+            
         } catch (IOException ex) {
-            throw new RuntimeException("Não foi possível iniciar o chat");
+            throw new RuntimeException("Não foi possível iniciar o chat: " + ex.getMessage());
+            
+        } catch (EventoException | EventoInvalidoException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+            
+            return false;
         }
     }
 
@@ -155,6 +166,7 @@ public class Inicio extends javax.swing.JFrame {
         labelUsuario.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         labelUsuario.setText("Todos");
 
+        txtMensagens.setEditable(false);
         txtMensagens.setContentType("text/html"); // NOI18N
         jScrollPane2.setViewportView(txtMensagens);
 
@@ -166,33 +178,33 @@ public class Inicio extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 761, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnEnviarArquivo, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-                            .addComponent(btnEnviarMensagem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 469, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnEnviarArquivo, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnEnviarMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane3)
-                            .addComponent(btnTodos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnTodos, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(9, 9, 9)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(labelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(224, 224, 224))
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane2)))))
-                .addContainerGap())
+                                .addGap(68, 68, 68)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(21, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnTodos, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(labelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(btnTodos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelUsuario, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(11, 11, 11)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
                     .addComponent(jScrollPane2))
