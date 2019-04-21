@@ -79,7 +79,7 @@ public class Cliente extends Thread{
         enviar.writeObject(mensagem);
         enviar.flush();
         
-        Saida.escrever(mensagem, false);
+        Saida.escrever(mensagem, false, arquivo.toPath().toString());
     }
     
     public void enviarMensagem(String texto, String destino) throws IOException 
@@ -115,7 +115,7 @@ public class Cliente extends Thread{
             stream.write(mensagem.getConteudo());
             stream.close();
             
-            Saida.escrever(mensagem, true);
+            Saida.escrever(mensagem, true, temp.getAbsolutePath());
             
             pagina.abrirArquivoRecebido(mensagem.getOrigem(), temp);
         } catch (IOException ex) {

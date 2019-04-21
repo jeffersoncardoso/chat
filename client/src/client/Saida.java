@@ -45,7 +45,15 @@ public class Saida {
     
     public static void escrever(MensagemArquivo mensagem, boolean recebido) {
         String origem = (recebido) ? "&larr; &nbsp; " + mensagem.getOrigem() : "Eu &rarr; " + mensagem.getDestino();
-        String saida = String.format("<b>%s</b><br> &nbsp; %s <br> <b>&nbsp;%s.%s</b>", origem, mensagem.getTexto(), mensagem.getNomeArquivo(), mensagem.getExtensao());
+        String saida = String.format("<b>%s</b><br> &nbsp; %s <br>", origem, mensagem.getTexto());
+        saida = saida.concat(String.format("<b>&nbsp;<a href='arquivo'>%s.%s</a></b>", mensagem.getNomeArquivo(), mensagem.getExtensao()));
+        Saida.escrever(saida);
+    }
+    
+    public static void escrever(MensagemArquivo mensagem, boolean recebido, String path) {
+        String origem = (recebido) ? "&larr; &nbsp; " + mensagem.getOrigem() : "Eu &rarr; " + mensagem.getDestino();
+        String saida = String.format("<b>%s</b><br> &nbsp; %s <br>", origem, mensagem.getTexto());
+        saida = saida.concat(String.format("<b>&nbsp;<a href='%s'>%s.%s</a></b>", path, mensagem.getNomeArquivo(), mensagem.getExtensao()));
         Saida.escrever(saida);
     }
     

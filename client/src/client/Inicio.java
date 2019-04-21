@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileSystemView;
 
 public class Inicio extends javax.swing.JFrame {
@@ -29,6 +31,17 @@ public class Inicio extends javax.swing.JFrame {
         
         initComponents();
         this.setTitle("Bem vindo ao chat - " + this.servidor.getUsuario());
+        
+        txtMensagens.addHyperlinkListener((HyperlinkEvent e) -> {
+            if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                System.out.println(e.getDescription());
+                File arquivo = new File(e.getDescription());
+                
+                Desktop dt = Desktop.getDesktop();
+                try { dt.open(arquivo); } 
+                catch (IOException ex) { ex.getStackTrace(); }
+            }
+        });
         
         Saida.setSaida(txtMensagens);
         
@@ -246,6 +259,11 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEnviarMensagemActionPerformed
 
     private void btnEnviarArquivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarArquivoActionPerformed
+        if(listaChat.isSelectionEmpty()) {
+            JOptionPane.showMessageDialog(null, "Selecione alguém para receber o arquivo");
+            return;
+        }
+        
         JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getFileSystemView().getHomeDirectory());
         int returnValue = jfc.showOpenDialog(null);
         
@@ -253,7 +271,7 @@ public class Inicio extends javax.swing.JFrame {
             File arquivo = jfc.getSelectedFile();
             try {
                 String textoMensagem = JOptionPane.showInputDialog("Arquivo '" + arquivo.getName() + "' selecionado, digite a mensagem: ");
-                servidor.enviarMensagem(textoMensagem, this.listaChat.getSelectedValue(), arquivo);
+                servidor.enviarMensagem(textoMensagem, listaChat.getSelectedValue(), arquivo);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Ocorreu um erro ao enviar a mensagem, tente novamente.");
             }
