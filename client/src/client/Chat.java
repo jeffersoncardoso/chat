@@ -10,22 +10,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileSystemView;
 
-public class Inicio extends javax.swing.JFrame {
+public class Chat extends javax.swing.JFrame {
 
     private Cliente servidor;
     private Socket socket;
     private ObjectOutputStream enviar;
     private ObjectInputStream receber;
     
-    public Inicio() {
+    public Chat() {
 
         fazerConexao();
         
@@ -47,7 +44,6 @@ public class Inicio extends javax.swing.JFrame {
         
         servidor.setListaChat(listaChat);
         servidor.start();
-        servidor.setPagina(this);
         
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - getWidth()) / 2);
@@ -74,19 +70,6 @@ public class Inicio extends javax.swing.JFrame {
         
         if(!fazerLogin())
             fazerConexao();
-    }
-    
-    public void abrirArquivoRecebido(String origem, File arquivo) {
-        int opcao = JOptionPane.showConfirmDialog(null, "Arquivo recebido de " + origem + ", deseja abrir?");
-            
-        if(opcao == 0) {
-            Desktop dt = Desktop.getDesktop();
-            try {
-                dt.open(arquivo);
-            } catch (IOException ex) {
-                ex.getStackTrace();
-            }
-        }
     }
     
     public boolean fazerLogin() {
@@ -270,8 +253,7 @@ public class Inicio extends javax.swing.JFrame {
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File arquivo = jfc.getSelectedFile();
             try {
-                String textoMensagem = JOptionPane.showInputDialog("Arquivo '" + arquivo.getName() + "' selecionado, digite a mensagem: ");
-                servidor.enviarMensagem(textoMensagem, listaChat.getSelectedValue(), arquivo);
+                servidor.enviarMensagem(this.txtEnviarMensagem.getText(), listaChat.getSelectedValue(), arquivo);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Ocorreu um erro ao enviar a mensagem, tente novamente.");
             }
@@ -314,20 +296,21 @@ public class Inicio extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Chat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Chat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Chat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Chat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Inicio().setVisible(true);
+                new Chat().setVisible(true);
             }
         });
     }

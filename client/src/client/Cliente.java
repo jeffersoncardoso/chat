@@ -29,7 +29,6 @@ public class Cliente extends Thread{
     private final ObjectInputStream receber;
     private String[] usuarios;
     private JList<String> listaChat;
-    private Inicio pagina;
 
     public Cliente(String endereco) throws IOException
     {
@@ -116,8 +115,6 @@ public class Cliente extends Thread{
             stream.close();
             
             Saida.escrever(mensagem, true, temp.getAbsolutePath());
-            
-            pagina.abrirArquivoRecebido(mensagem.getOrigem(), temp);
         } catch (IOException ex) {
             throw new EventoException("Erro ao receber a mensagem: " + ex.getMessage());
         }
@@ -175,9 +172,5 @@ public class Cliente extends Thread{
         
         listaChat.setListData(outrosUsuarios.toArray(new String[0]));
         listaChat.setSelectedValue(selecionado, true);
-    }
-
-    void setPagina(Inicio pagina) {
-        this.pagina = pagina;
     }
 }
