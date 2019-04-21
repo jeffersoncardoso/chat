@@ -44,7 +44,11 @@ public class Inicio extends javax.swing.JFrame {
     
     public void fazerConexao() {
         try {
-            servidor = new Cliente();
+            String endereco = JOptionPane.showInputDialog("Endereço do servidor", "localhost");
+            if(!endereco.isEmpty())
+                servidor = new Cliente(endereco);
+            else
+                throw new RuntimeException("Não foi possível iniciar o chat");
         } catch (IOException ex) {
             int opcao = JOptionPane.showConfirmDialog(null, "Ocorreu um erro na conexão com o servidor, deseja tentar novamente?");
             

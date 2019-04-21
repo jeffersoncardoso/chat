@@ -32,7 +32,6 @@ public class AguardarConexoes extends Thread{
         while(this.servidor.estaLigado()){
             try {
                 Conexao conexao = new Conexao(this.servidor.esperarCliente());
-                
                 Login login = (Login)conexao.receber();
                 
                 if(fazerLogin(login, conexao)){
@@ -44,7 +43,8 @@ public class AguardarConexoes extends Thread{
                 }
                 
             } catch (IOException ex) {
-                Saida.escrever(ex.getMessage());
+                ex.getStackTrace();
+                Saida.escrever("Erro na conexão: " + ex.getMessage());
             }
         }
     }

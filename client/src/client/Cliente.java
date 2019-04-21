@@ -31,9 +31,9 @@ public class Cliente extends Thread{
     private JList<String> listaChat;
     private Inicio pagina;
 
-    public Cliente() throws IOException
+    public Cliente(String endereco) throws IOException
     {
-        socket = new Socket("localhost", 8084);
+        socket = new Socket(endereco, 8084);
         enviar = new ObjectOutputStream(socket.getOutputStream());
         receber = new ObjectInputStream(socket.getInputStream());
     }
