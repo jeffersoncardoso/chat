@@ -1,4 +1,4 @@
-package Cliente;
+package Servidor;
 
 import Servidor.Conexao;
 import Servidor.Servidor;

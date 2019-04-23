@@ -7,9 +7,6 @@ import java.io.File;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
@@ -18,9 +15,6 @@ import javax.swing.filechooser.FileSystemView;
 public class Chat extends javax.swing.JFrame {
 
     private Cliente servidor;
-    private Socket socket;
-    private ObjectOutputStream enviar;
-    private ObjectInputStream receber;
     
     public Chat() {
 
@@ -43,7 +37,7 @@ public class Chat extends javax.swing.JFrame {
         Saida.setSaida(txtMensagens);
         
         servidor.setListaChat(listaChat);
-        servidor.start();
+        servidor.iniciar();
         
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - getWidth()) / 2);
@@ -74,7 +68,12 @@ public class Chat extends javax.swing.JFrame {
     
     public boolean fazerLogin() {
         try {
-            servidor.fazerLogin(JOptionPane.showInputDialog("Digite seu usuário: "));
+            String usuario = JOptionPane.showInputDialog("Digite seu usuário: ");
+            
+            if(usuario.trim().isEmpty())
+                return fazerLogin();
+            
+            servidor.fazerLogin(usuario);
             
             return true;
             
@@ -194,7 +193,7 @@ public class Chat extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(labelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(68, 68, 68)))))
+                                .addGap(61, 61, 61)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(

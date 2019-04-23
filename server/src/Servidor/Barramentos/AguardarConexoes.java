@@ -1,6 +1,6 @@
 package Servidor.Barramentos;
 
-import Cliente.Usuario;
+import Servidor.Usuario;
 import Eventos.FalhaLogin;
 import Servidor.Servidor;
 import Servidor.Conexao;

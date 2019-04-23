@@ -2,7 +2,6 @@ package Servidor;
 
 import Servidor.Barramentos.AguardarConexoes;
 import Servidor.Barramentos.UsuariosConectados;
-import Cliente.Usuario;
 import Eventos.MensagemArquivo;
 import Eventos.MensagemPrivada;
 import Eventos.MensagemPublica;

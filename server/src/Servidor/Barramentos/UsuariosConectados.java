@@ -1,6 +1,6 @@
 package Servidor.Barramentos;
 
-import Cliente.Usuario;
+import Servidor.Usuario;
 import Servidor.Servidor;
 
 public class UsuariosConectados extends Thread{

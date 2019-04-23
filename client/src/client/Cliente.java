@@ -29,6 +29,7 @@ public class Cliente extends Thread{
     private final ObjectInputStream receber;
     private String[] usuarios;
     private JList<String> listaChat;
+    private boolean estaAtivo = false;
 
     public Cliente(String endereco) throws IOException
     {
@@ -120,9 +121,14 @@ public class Cliente extends Thread{
         }
     }
     
+    public void iniciar() {
+        estaAtivo = true;
+        start();
+    }
+    
     @Override
     public void run() {
-        while (true) {
+        while (estaAtivo) {
             try {
                 Evento evento = EventoFabrica.escolher(this.receber.readObject());
                 
